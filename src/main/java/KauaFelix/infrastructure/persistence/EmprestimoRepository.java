@@ -13,12 +13,11 @@ public class EmprestimoRepository {
     public Emprestimo realizarEmprestimo(Emprestimo emprestimo) throws SQLException{
 
         String sql = """
-                INSERT INTO (
+                INSERT INTO Emprestimo(
                 id_livro,
                 nome_pessoa,
-                data_emprestimo,
-                data_devolucao )
-                VALUES (?,?,?,?)
+                data_emprestimo )
+                VALUES (?,?,?)
                 """;
 
         try (Connection conn = Conexao.conectar();
@@ -27,7 +26,6 @@ public class EmprestimoRepository {
             ps.setInt(1, emprestimo.getIdLivro());
             ps.setString(2, emprestimo.getNomePessoa());
             ps.setDate(3, Date.valueOf(emprestimo.getDataEmprestimo()));
-            ps.setDate(4, Date.valueOf(emprestimo.getDataDevolucao()));
 
             ps.executeUpdate();
 
@@ -72,4 +70,22 @@ public class EmprestimoRepository {
         }
         return emprestimos;
     }
+
+    public void atualizarDevolucao(int id) throws SQLException{
+
+        String sql = """
+                UPDATE Emprestimo 
+                SET data_devolucao = NOW()
+                WHERE id = ?
+                """;
+
+        try (Connection conn = Conexao.conectar();
+        PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
+
 }
