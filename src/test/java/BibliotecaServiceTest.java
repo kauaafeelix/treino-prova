@@ -26,7 +26,8 @@ public class BibliotecaServiceTest {
     @Test
     @Order(2)
     public void testBuscarLivroPorId() {
-        Livro livro = service.buscarLivroPorId(1);
+        int idCleanCode = service.cadastrarLivro("Clean Code", "Robert C. Martin", 2008);
+        Livro livro = service.buscarLivroPorId(idCleanCode);
         assertNotNull(livro);
         assertEquals("Clean Code", livro.getTitulo());
     }
