@@ -18,7 +18,6 @@ public class LivroRepository {
                 ano_publicacao,
                 disponivel )
                 VALUES (?,?,?,?)
-                ON DELETE CASCADE
                 """;
 
         try (Connection conn = Conexao.conectar();
@@ -75,9 +74,7 @@ public class LivroRepository {
         return livros;
     }
 
-    public List<Livro> buscarLivroPorId(int id) throws SQLException{
-
-        List<Livro> livros = new ArrayList<>();
+    public Livro buscarLivroPorId(int id) throws SQLException{
 
         String sql = """
                 SELECT
@@ -104,11 +101,11 @@ public class LivroRepository {
                         rs.getInt("ano_publicacao"),
                         rs.getBoolean("disponivel")
                 );
-
-                livros.add(livro);
+                return livro;
             }
+
         }
-        return livros;
+        return null;
     }
 
     public void atualizarDisponibilidade(boolean disponivel, int id) throws SQLException{
@@ -139,6 +136,57 @@ public class LivroRepository {
         PreparedStatement ps = conn.prepareStatement(sql)){
 
             ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
+    public List<Livro> listarLivrosDisponiveis() throws SQLException{
+        List<Livro> livros = new ArrayList<>();
+
+        String sql = """
+                SELECT
+                id, 
+                titulo,
+                autor,
+                ano_publicacao,
+                disponivel
+                FROM Livro
+                WHERE disponivel = true
+                """;
+
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                int id = rs.getInt("id");
+                String titulo = rs.getString("titulo");
+                String autor = rs.getString("autor");
+                int anoPublicacao = rs.getInt("ano_publicacao");
+                boolean disponivel = rs.getBoolean("disponivel");
+
+                Livro livro = new Livro(id, titulo, autor, anoPublicacao, disponivel);
+                livros.add(livro);
+            }
+
+        }
+        return livros;
+    }
+
+    public void atualizarTitulo(String novoTitulo, int id) throws SQLException{
+
+        String sql = """
+                UPDATE Livro
+                SET titulo = ?
+                WHERE id = ?
+                """;
+
+        try(Connection conn = Conexao.conectar();
+        PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setString(1, novoTitulo);
+            ps.setInt(2, id);
             ps.executeUpdate();
         }
     }
